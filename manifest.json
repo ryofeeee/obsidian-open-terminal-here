@@ -1,0 +1,9 @@
+{
+  "id": "open-terminal-here",
+  "name": "Open Terminal Here",
+  "author": "ara10",
+  "version": "1.0.0",
+  "minAppVersion": "1.0.0",
+  "description": "Shift+Right-click to open PowerShell at the current file's directory.",
+  "isDesktopOnly": true
+}
