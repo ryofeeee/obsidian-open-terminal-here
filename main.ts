@@ -5,16 +5,24 @@ import {
   Plugin,
   PluginSettingTab,
   Setting,
+  TAbstractFile,
+  TFolder,
 } from "obsidian";
 import { dirname, join } from "path";
 import { spawn } from "child_process";
 
 interface OpenTerminalSettings {
   terminal: string;
+  triggerEditorMenu: boolean;
+  triggerFileMenu: boolean;
+  triggerRibbon: boolean;
 }
 
 const DEFAULT_SETTINGS: OpenTerminalSettings = {
   terminal: "powershell.exe",
+  triggerEditorMenu: true,
+  triggerFileMenu: false,
+  triggerRibbon: false,
 };
 
 export default class OpenTerminalPlugin extends Plugin {
@@ -24,9 +32,10 @@ export default class OpenTerminalPlugin extends Plugin {
     await this.loadSettings();
     this.addSettingTab(new OpenTerminalSettingTab(this.app, this));
 
-    // エディタの右クリックメニューに「Open terminal here」を追加
+    // editor-menu: ハンドラ内でフラグをチェック → 設定変更が即時反映
     this.registerEvent(
       this.app.workspace.on("editor-menu", (menu) => {
+        if (!this.settings.triggerEditorMenu) return;
         menu.addItem((item) => {
           item
             .setTitle("Open terminal here")
@@ -35,22 +44,70 @@ export default class OpenTerminalPlugin extends Plugin {
         });
       })
     );
+
+    // file-menu: TFile/TFolder 両対応、即時反映
+    this.registerEvent(
+      this.app.workspace.on("file-menu", (menu, abstractFile) => {
+        if (!this.settings.triggerFileMenu) return;
+        menu.addItem((item) => {
+          item
+            .setTitle("Open terminal here")
+            .setIcon("terminal")
+            .onClick(() => {
+              const dir = this.resolveDir(abstractFile);
+              if (dir) this.openTerminal(dir);
+            });
+        });
+      })
+    );
+
+    // コマンド: 常時登録（ホットキーはObsidianのショートカット設定で割り当て可能）
+    this.addCommand({
+      id: "open-terminal-here",
+      name: "Open terminal here",
+      callback: () => this.openTerminal(),
+    });
+
+    // リボン: onload時のみ評価（変更後はプラグイン再読み込みが必要）
+    if (this.settings.triggerRibbon) {
+      this.addRibbonIcon("terminal", "Open terminal here", () => {
+        this.openTerminal();
+      });
+    }
   }
 
-  private openTerminal() {
-    const file = this.app.workspace.getActiveFile();
-    if (!file) {
-      new Notice("No file is currently open.");
-      return;
-    }
-
+  private resolveDir(abstractFile: TAbstractFile): string | null {
     const adapter = this.app.vault.adapter;
     if (!(adapter instanceof FileSystemAdapter)) {
       new Notice("This plugin only works with local vaults.");
-      return;
+      return null;
+    }
+    const basePath = adapter.getBasePath();
+    if (abstractFile instanceof TFolder) {
+      return join(basePath, abstractFile.path);
+    }
+    return dirname(join(basePath, abstractFile.path));
+  }
+
+  private openTerminal(dirOverride?: string) {
+    let dir: string;
+
+    if (dirOverride !== undefined) {
+      dir = dirOverride;
+    } else {
+      const file = this.app.workspace.getActiveFile();
+      if (!file) {
+        new Notice("No file is currently open.");
+        return;
+      }
+      const adapter = this.app.vault.adapter;
+      if (!(adapter instanceof FileSystemAdapter)) {
+        new Notice("This plugin only works with local vaults.");
+        return;
+      }
+      dir = dirname(join(adapter.getBasePath(), file.path));
     }
 
-    const dir = dirname(join(adapter.getBasePath(), file.path));
     const terminal = this.settings.terminal || "powershell.exe";
 
     try {
@@ -102,6 +159,54 @@ class OpenTerminalSettingTab extends PluginSettingTab {
           .setValue(this.plugin.settings.terminal)
           .onChange(async (value) => {
             this.plugin.settings.terminal = value.trim();
+            await this.plugin.saveSettings();
+          })
+      );
+
+    containerEl.createEl("h3", { text: "Trigger methods" });
+
+    new Setting(containerEl)
+      .setName("Editor right-click menu")
+      .setDesc("Add 'Open terminal here' to the editor context menu.")
+      .addToggle((toggle) =>
+        toggle
+          .setValue(this.plugin.settings.triggerEditorMenu)
+          .onChange(async (value) => {
+            this.plugin.settings.triggerEditorMenu = value;
+            await this.plugin.saveSettings();
+          })
+      );
+
+    new Setting(containerEl)
+      .setName("File explorer right-click menu")
+      .setDesc(
+        "Add 'Open terminal here' to the file explorer context menu. Works for both files and folders."
+      )
+      .addToggle((toggle) =>
+        toggle
+          .setValue(this.plugin.settings.triggerFileMenu)
+          .onChange(async (value) => {
+            this.plugin.settings.triggerFileMenu = value;
+            await this.plugin.saveSettings();
+          })
+      );
+
+    new Setting(containerEl)
+      .setName("Command palette / Hotkey")
+      .setDesc(
+        "The command 'Open terminal here' is always registered. Assign a hotkey via Obsidian's Hotkeys settings."
+      );
+
+    new Setting(containerEl)
+      .setName("Ribbon button")
+      .setDesc(
+        "Show a terminal button in the ribbon. Requires reloading the plugin after changing this setting."
+      )
+      .addToggle((toggle) =>
+        toggle
+          .setValue(this.plugin.settings.triggerRibbon)
+          .onChange(async (value) => {
+            this.plugin.settings.triggerRibbon = value;
             await this.plugin.saveSettings();
           })
       );
