@@ -1,9 +1,10 @@
 {
   "id": "open-terminal-here",
   "name": "Open Terminal Here",
-  "author": "ara10",
+  "author": "ryofeeee",
   "version": "1.0.0",
   "minAppVersion": "1.0.0",
-  "description": "Shift+Right-click to open PowerShell at the current file's directory.",
+  "description": "Open a terminal at the current file's directory from the editor or file explorer context menu.",
   "isDesktopOnly": true
 }
+ 
