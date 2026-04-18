@@ -19,7 +19,7 @@ interface OpenTerminalSettings {
 }
 
 const DEFAULT_SETTINGS: OpenTerminalSettings = {
-  terminal: "powershell.exe",
+  terminal: process.platform === "darwin" ? "Terminal" : "powershell.exe",
   triggerEditorMenu: true,
   triggerFileMenu: false,
   triggerRibbon: false,
@@ -108,17 +108,23 @@ export default class OpenTerminalPlugin extends Plugin {
       dir = dirname(join(adapter.getBasePath(), file.path));
     }
 
-    const terminal = this.settings.terminal || "powershell.exe";
+    const terminal = this.settings.terminal || (process.platform === "darwin" ? "Terminal" : "powershell.exe");
 
     try {
-      // Windows では spawn で直接起動してもウィンドウが表示されないため
-      // cmd /c start 経由で新しいウィンドウとして起動する
-      const proc = spawn("cmd.exe", ["/c", "start", terminal], {
-        cwd: dir,
-        detached: true,
-        stdio: "ignore",
-        windowsHide: false,
-      });
+      let proc;
+      if (process.platform === "darwin") {
+        proc = spawn("open", ["-a", terminal, dir], {
+          detached: true,
+          stdio: "ignore",
+        });
+      } else {
+        proc = spawn("cmd.exe", ["/c", "start", terminal], {
+          cwd: dir,
+          detached: true,
+          stdio: "ignore",
+          windowsHide: false,
+        });
+      }
       proc.unref();
     } catch (e) {
       new Notice(`Failed to open terminal: ${e}`);
@@ -151,11 +157,11 @@ class OpenTerminalSettingTab extends PluginSettingTab {
     new Setting(containerEl)
       .setName("Terminal command")
       .setDesc(
-        "The executable to launch. Examples: powershell.exe, pwsh, wt (Windows Terminal)"
+        "The terminal app to launch. Mac: Terminal, iTerm / Windows: powershell.exe, pwsh, wt"
       )
       .addText((text) =>
         text
-          .setPlaceholder("powershell.exe")
+          .setPlaceholder(process.platform === "darwin" ? "Terminal" : "powershell.exe")
           .setValue(this.plugin.settings.terminal)
           .onChange(async (value) => {
             this.plugin.settings.terminal = value.trim();
