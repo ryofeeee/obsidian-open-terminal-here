@@ -1,4 +1,16 @@
+# Claude
+.claude/
+CLAUDE.md
+
+# Obsidian
+.obsidian/
+
+# Node
 node_modules/
-main.js
+
+# Build
+*.js
 *.js.map
-*.claude*
+
+# ただしmain.jsは含める（Obsidianが読むため）
+!main.js
