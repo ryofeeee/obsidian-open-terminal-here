@@ -63,8 +63,8 @@ export default class OpenTerminalPlugin extends Plugin {
 
     // コマンド: 常時登録（ホットキーはObsidianのショートカット設定で割り当て可能）
     this.addCommand({
-      id: "open",
-      name: "Open",
+      id: "open-terminal",
+      name: "Open terminal",
       callback: () => this.openTerminal(),
     });
 
