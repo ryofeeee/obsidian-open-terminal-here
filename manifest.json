@@ -2,7 +2,7 @@
   "id": "open-terminal-here",
   "name": "Open Terminal Here",
   "author": "ryofeeee",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "minAppVersion": "1.0.0",
   "description": "Open a terminal at the current file's directory from the editor or file explorer context menu.",
   "isDesktopOnly": true
