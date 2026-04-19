@@ -63,8 +63,8 @@ export default class OpenTerminalPlugin extends Plugin {
 
     // コマンド: 常時登録（ホットキーはObsidianのショートカット設定で割り当て可能）
     this.addCommand({
-      id: "open-terminal-here",
-      name: "Open terminal here",
+      id: "open",
+      name: "Open",
       callback: () => this.openTerminal(),
     });
 
@@ -146,7 +146,7 @@ class OpenTerminalSettingTab extends PluginSettingTab {
     const { containerEl } = this;
     containerEl.empty();
 
-    containerEl.createEl("h2", { text: "Open Terminal Here" });
+    new Setting(containerEl).setName("Open terminal here").setHeading();
 
     new Setting(containerEl)
       .setName("Terminal command")
@@ -163,7 +163,7 @@ class OpenTerminalSettingTab extends PluginSettingTab {
           })
       );
 
-    containerEl.createEl("h3", { text: "Trigger methods" });
+    new Setting(containerEl).setName("Trigger methods").setHeading();
 
     new Setting(containerEl)
       .setName("Editor right-click menu")
@@ -192,7 +192,7 @@ class OpenTerminalSettingTab extends PluginSettingTab {
       );
 
     new Setting(containerEl)
-      .setName("Command palette / Hotkey")
+      .setName("Command palette / hotkey")
       .setDesc(
         "The command 'Open terminal here' is always registered. Assign a hotkey via Obsidian's Hotkeys settings."
       );
