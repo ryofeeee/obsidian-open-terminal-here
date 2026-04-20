@@ -152,8 +152,6 @@ class OpenTerminalSettingTab extends PluginSettingTab {
     const { containerEl } = this;
     containerEl.empty();
 
-    new Setting(containerEl).setName("Open terminal here").setHeading();
-
     new Setting(containerEl)
       .setName("Terminal command")
       .setDesc(
@@ -173,7 +171,7 @@ class OpenTerminalSettingTab extends PluginSettingTab {
 
     new Setting(containerEl)
       .setName("Editor right-click menu")
-      .setDesc("Add 'Open terminal here' to the editor context menu.")
+      .setDesc("Add 'open terminal here' to the editor context menu.")
       .addToggle((toggle) =>
         toggle
           .setValue(this.plugin.settings.triggerEditorMenu)
@@ -186,7 +184,7 @@ class OpenTerminalSettingTab extends PluginSettingTab {
     new Setting(containerEl)
       .setName("File explorer right-click menu")
       .setDesc(
-        "Add 'Open terminal here' to the file explorer context menu. Works for both files and folders."
+        "Add 'open terminal here' to the file explorer context menu. Works for both files and folders."
       )
       .addToggle((toggle) =>
         toggle
@@ -200,7 +198,7 @@ class OpenTerminalSettingTab extends PluginSettingTab {
     new Setting(containerEl)
       .setName("Command palette / hotkey")
       .setDesc(
-        "The command 'Open terminal here' is always registered. Assign a hotkey via Obsidian's Hotkeys settings."
+        "The command 'open terminal here' is always registered. Assign a hotkey via Obsidian's hotkeys settings."
       );
 
     new Setting(containerEl)
