@@ -113,10 +113,7 @@ export default class OpenTerminalPlugin extends Plugin {
     try {
       let proc;
       if (process.platform === "darwin") {
-        proc = spawn("open", ["-a", terminal, dir], {
-          detached: true,
-          stdio: "ignore",
-        });
+        proc = this.spawnDarwin(terminal, dir);
       } else {
         proc = spawn("cmd.exe", ["/c", "start", terminal], {
           cwd: dir,
@@ -129,6 +126,22 @@ export default class OpenTerminalPlugin extends Plugin {
     } catch (e) {
       new Notice(`Failed to open terminal: ${e}`);
     }
+  }
+
+  private spawnDarwin(terminal: string, dir: string) {
+    // Terminals that require --working-directory style flags via `open --args`
+    const workingDirArgs: Record<string, string[]> = {
+      ghostty:   ["--args", `--working-directory=${dir}`],
+      alacritty: ["--args", "--working-directory", dir],
+      wezterm:   ["--args", "start", "--cwd", dir],
+    };
+
+    const extraArgs = workingDirArgs[terminal.toLowerCase()];
+    const args = extraArgs
+      ? ["-a", terminal, ...extraArgs]
+      : ["-a", terminal, dir]; // Terminal.app, iTerm, Warp, Hyper etc.
+
+    return spawn("open", args, { detached: true, stdio: "ignore" });
   }
 
   async loadSettings() {
@@ -155,7 +168,7 @@ class OpenTerminalSettingTab extends PluginSettingTab {
     new Setting(containerEl)
       .setName("Terminal command")
       .setDesc(
-        "The terminal app to launch. Mac: Terminal, iTerm / Windows: powershell.exe, pwsh, wt"
+        "The terminal app to launch. Mac: Terminal, iTerm, Warp, Ghostty, Alacritty, WezTerm / Windows: powershell.exe, pwsh, wt"
       )
       .addText((text) =>
         text
