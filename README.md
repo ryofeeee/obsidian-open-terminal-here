@@ -10,7 +10,7 @@ An [Obsidian](https://obsidian.md) plugin that opens your preferred terminal at 
   - **File explorer right-click menu** — right-click any file or folder
   - **Command palette** — always available as *Open terminal here*
   - **Ribbon button** — optional icon in the left sidebar
-- Supports any terminal: Terminal, iTerm (macOS), PowerShell, pwsh, Windows Terminal (`wt`), and more
+- Supports any terminal: Terminal, iTerm, Warp, Ghostty, Alacritty, WezTerm (macOS), PowerShell, pwsh, Windows Terminal (`wt`), and more
 
 ## Requirements
 
@@ -35,7 +35,7 @@ An [Obsidian](https://obsidian.md) plugin that opens your preferred terminal at 
 
 | Setting | Default | Description |
 |---|---|---|
-| Terminal command | `Terminal` (macOS) / `powershell.exe` (Windows) | The terminal app to launch. macOS: `Terminal`, `iTerm` / Windows: `powershell.exe`, `pwsh`, `wt` |
+| Terminal command | `Terminal` (macOS) / `powershell.exe` (Windows) | The terminal app to launch. macOS: `Terminal`, `iTerm`, `Warp`, `Ghostty`, `Alacritty`, `WezTerm` / Windows: `powershell.exe`, `pwsh`, `wt` |
 | Editor right-click menu | On | Show *Open terminal here* in the editor context menu |
 | File explorer right-click menu | Off | Show *Open terminal here* in the file explorer context menu |
 | Ribbon button | Off | Show a terminal icon in the left ribbon (requires plugin reload) |
